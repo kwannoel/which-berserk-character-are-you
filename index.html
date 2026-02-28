@@ -260,6 +260,75 @@
       background: #8B0000;
       color: #e8e0d4;
     }
+    .distribution-link {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #555;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+    .distribution-link:hover {
+      color: #8B0000;
+    }
+    .distribution-panel {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: #111;
+      border: 1px solid #222;
+      text-align: left;
+      font-family: monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #888;
+    }
+    .distribution-panel .dist-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .distribution-panel .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2px;
+    }
+    .distribution-panel .dist-name {
+      width: 140px;
+      text-align: right;
+      flex-shrink: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .distribution-panel .dist-name.dist-you {
+      color: #8B0000;
+      font-weight: bold;
+    }
+    .distribution-panel .dist-bar-bg {
+      flex: 1;
+      height: 14px;
+      background: #1a1a1a;
+      position: relative;
+    }
+    .distribution-panel .dist-bar {
+      height: 100%;
+      background: #333;
+      transition: width 0.3s ease;
+    }
+    .distribution-panel .dist-bar.dist-you-bar {
+      background: #8B0000;
+    }
+    .distribution-panel .dist-pct {
+      width: 45px;
+      text-align: right;
+      flex-shrink: 0;
+    }
     .result-portrait {
       margin: 1.5rem 0;
     }
@@ -883,6 +952,8 @@
           <button id="btn-download-card">Download Card</button>
           <button id="btn-retake">Try Again</button>
         </div>
+        <p class="distribution-link" id="btn-distribution">How rare is your result?</p>
+        <div id="distribution-panel"></div>
       `;
 
       document.getElementById('btn-retake').addEventListener('click', () => {
@@ -905,6 +976,43 @@
         link.download = `berserk-quiz-${currentResult.match.id}.png`;
         link.href = card.toDataURL('image/png');
         link.click();
+      });
+
+      document.getElementById('btn-distribution').addEventListener('click', () => {
+        const panel = document.getElementById('distribution-panel');
+        if (panel.innerHTML) { panel.innerHTML = ''; return; }
+
+        const pool = quizMode === 'rivalry' ? RIVALRY_CHARACTERS : CHARACTERS;
+        const ROUNDS = 10000;
+        const counts = {};
+        pool.forEach(c => { counts[c.name] = 0; });
+
+        for (let i = 0; i < ROUNDS; i++) {
+          const indices = Array.from({ length: 12 }, () => Math.floor(Math.random() * 4));
+          const answers = indices.map((idx, qi) => QUESTIONS[qi].answers[idx]);
+          const r = calculateResult(answers, pool);
+          counts[r.match.name]++;
+        }
+
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const maxCount = sorted[0][1];
+
+        const rows = sorted.map(([name, count]) => {
+          const pct = ((count / ROUNDS) * 100).toFixed(1);
+          const barW = ((count / maxCount) * 100).toFixed(1);
+          const isYou = name === match.name;
+          return `<div class="dist-row">
+            <span class="dist-name ${isYou ? 'dist-you' : ''}">${name}</span>
+            <span class="dist-bar-bg"><span class="dist-bar ${isYou ? 'dist-you-bar' : ''}" style="width:${barW}%"></span></span>
+            <span class="dist-pct">${pct}%</span>
+          </div>`;
+        }).join('');
+
+        const modeLabel = quizMode === 'rivalry' ? 'Guts vs Griffith — ' : '';
+        panel.innerHTML = `<div class="distribution-panel">
+          <p class="dist-title">${modeLabel}${ROUNDS.toLocaleString()} random playthroughs</p>
+          ${rows}
+        </div>`;
       });
 
       const portraitEl = document.getElementById('result-portrait');
