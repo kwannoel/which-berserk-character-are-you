@@ -225,6 +225,25 @@
       height: 225px;
       filter: drop-shadow(0 0 20px rgba(139,0,0,0.3));
     }
+
+    /* Calculating screen */
+    #screen-calculating {
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at center, rgba(139,0,0,0.1) 0%, transparent 70%),
+        #0a0a0a;
+    }
+    .calculating-text {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      color: #555;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; color: #8B0000; }
+    }
   </style>
 </head>
 <body>
@@ -242,7 +261,7 @@
   </div>
 
   <div id="screen-calculating" class="screen">
-    <p>The Eclipse reveals your fate...</p>
+    <p class="calculating-text">The Eclipse reveals your fate...</p>
   </div>
 
   <div id="screen-result" class="screen">
