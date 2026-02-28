@@ -127,7 +127,7 @@
       border-color: #8B0000;
       background: rgba(139,0,0,0.15);
     }
-    .question-container { transition: opacity 0.3s ease; }
+    .question-container { transition: opacity 0.15s ease; }
     .question-container.fade-out { opacity: 0; }
 
     /* Results screen */
@@ -607,28 +607,31 @@
         });
       });
 
-      const maxPossible = Math.max(...Object.values(userTraits));
-      const minPossible = Math.min(...Object.values(userTraits));
-      const range = maxPossible - minPossible || 1;
+      // Normalize to 1-10 scale proportionally (not min-max)
+      const maxRaw = Math.max(...Object.values(userTraits)) || 1;
       const normalizedUser = {};
       Object.entries(userTraits).forEach(([trait, value]) => {
-        normalizedUser[trait] = 1 + ((value - minPossible) / range) * 9;
+        normalizedUser[trait] = Math.max(1, (value / maxRaw) * 10);
       });
 
-      const distances = CHARACTERS.map(char => {
-        const dist = Math.sqrt(
-          Object.keys(normalizedUser).reduce((sum, trait) => {
-            return sum + Math.pow(normalizedUser[trait] - char.traits[trait], 2);
-          }, 0)
-        );
-        return { character: char, distance: dist };
+      // Cosine similarity — compares trait profile shape, not magnitude
+      const traitKeys = Object.keys(normalizedUser);
+      const similarities = CHARACTERS.map(char => {
+        let dot = 0, magU = 0, magC = 0;
+        traitKeys.forEach(t => {
+          dot += normalizedUser[t] * char.traits[t];
+          magU += normalizedUser[t] * normalizedUser[t];
+          magC += char.traits[t] * char.traits[t];
+        });
+        const similarity = dot / (Math.sqrt(magU) * Math.sqrt(magC));
+        return { character: char, similarity };
       });
 
-      distances.sort((a, b) => a.distance - b.distance);
+      similarities.sort((a, b) => b.similarity - a.similarity);
 
       return {
-        match: distances[0].character,
-        runnerUp: distances[1].character,
+        match: similarities[0].character,
+        runnerUp: similarities[1].character,
         userTraits: normalizedUser
       };
     }
@@ -927,9 +930,9 @@
           setTimeout(() => {
             renderQuestion();
             container.classList.remove('fade-out');
-          }, 300);
+          }, 150);
         }
-      }, 400);
+      }, 150);
     }
 
     function showCalculating() {
