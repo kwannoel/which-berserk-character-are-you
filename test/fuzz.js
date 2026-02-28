@@ -142,10 +142,39 @@ if (unreachable.length) {
   exitCode = 1;
 }
 
+// ── Rivalry mode fuzz ────────────────────────────────────────────
+console.log(`\n=== RIVALRY MODE: ${FUZZ_ROUNDS} random playthroughs (Guts vs Griffith) ===\n`);
+
+const rivalryCounts = { Guts: 0, Griffith: 0 };
+for (let i = 0; i < FUZZ_ROUNDS; i++) {
+  const indices = Array.from({ length: 12 }, () => Math.floor(Math.random() * 4));
+  const answers = indices.map((idx, qi) => QUESTIONS[qi].answers[idx]);
+  const result = calculateResult(answers, RIVALRY_CHARACTERS);
+  rivalryCounts[result.match.name]++;
+}
+
+Object.entries(rivalryCounts).forEach(([name, count]) => {
+  const pct = (count / (FUZZ_ROUNDS / 100)).toFixed(1);
+  const bar = '#'.repeat(Math.round(count / (FUZZ_ROUNDS / 100)));
+  console.log('  ' + name.padEnd(25) + pct.padStart(5) + '%  ' + bar);
+});
+
+// Check neither character exceeds 70% — both should be reachable with reasonable frequency
+const rivalryMax = Math.max(rivalryCounts.Guts, rivalryCounts.Griffith);
+const rivalryMaxName = rivalryCounts.Guts > rivalryCounts.Griffith ? 'Guts' : 'Griffith';
+const rivalryMaxPct = rivalryMax / (FUZZ_ROUNDS / 100);
+
+if (rivalryMaxPct > 70) {
+  console.log(`\n  FAIL: ${rivalryMaxName} dominates rivalry mode at ${rivalryMaxPct.toFixed(1)}% (threshold: 70%)`);
+  exitCode = 1;
+} else {
+  console.log(`\n  PASS: Rivalry mode balanced (max: ${rivalryMaxName} at ${rivalryMaxPct.toFixed(1)}%)`);
+}
+
 // ── Summary ──────────────────────────────────────────────────────
 console.log('\n=== SUMMARY ===');
-console.log(`  Reachable: ${CHARACTERS.length - unreachable.length} / ${CHARACTERS.length}`);
-console.log(`  Unreachable: ${unreachable.length}`);
+console.log(`  Full mode — Reachable: ${CHARACTERS.length - unreachable.length} / ${CHARACTERS.length}`);
+console.log(`  Rivalry mode — Guts: ${(rivalryCounts.Guts / (FUZZ_ROUNDS / 100)).toFixed(1)}% / Griffith: ${(rivalryCounts.Griffith / (FUZZ_ROUNDS / 100)).toFixed(1)}%`);
 console.log(`  Result: ${exitCode === 0 ? 'PASS' : 'FAIL'}`);
 
 process.exit(exitCode);
