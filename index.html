@@ -125,6 +125,106 @@
     }
     .question-container { transition: opacity 0.3s ease; }
     .question-container.fade-out { opacity: 0; }
+
+    /* Results screen */
+    #screen-result {
+      padding: 2rem;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .result-character-name {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      color: #8B0000;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 30px rgba(139,0,0,0.3);
+    }
+    .result-label {
+      font-size: 0.9rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+    }
+    .result-quote {
+      font-style: italic;
+      font-size: 1.1rem;
+      color: #888;
+      margin: 1.5rem 0;
+      line-height: 1.6;
+      padding: 0 1rem;
+      border-left: 2px solid #8B0000;
+      text-align: left;
+    }
+    .result-description {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: #ccc;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+    .result-match-blurb {
+      font-size: 0.95rem;
+      color: #999;
+      margin: 1rem 0 2rem;
+      text-align: left;
+    }
+    .result-runner-up {
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #111;
+      border: 1px solid #222;
+      text-align: left;
+    }
+    .result-runner-up .label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.25rem;
+    }
+    .result-runner-up .name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: #8B0000;
+    }
+    .result-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .result-actions button {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      color: #8B0000;
+      border: 1px solid #8B0000;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
+    }
+    .result-actions button:hover {
+      background: #8B0000;
+      color: #e8e0d4;
+    }
+    .result-portrait {
+      margin: 1.5rem 0;
+    }
+    .result-portrait svg {
+      width: 180px;
+      height: 225px;
+      filter: drop-shadow(0 0 20px rgba(139,0,0,0.3));
+    }
   </style>
 </head>
 <body>
@@ -464,6 +564,49 @@
         runnerUp: distances[1].character,
         userTraits: normalizedUser
       };
+    }
+
+    let currentResult = null;
+
+    function renderResult(result) {
+      currentResult = result;
+      const { match, runnerUp, userTraits } = result;
+      const container = document.getElementById('result-container');
+
+      container.innerHTML = `
+        <p class="result-label">You are</p>
+        <h1 class="result-character-name">${match.name}</h1>
+        <div class="result-portrait" id="result-portrait"></div>
+        <blockquote class="result-quote">"${match.quote}"</blockquote>
+        <p class="result-description">${match.description}</p>
+        <p class="result-match-blurb">${match.matchBlurb}</p>
+        <canvas id="radar-chart" width="350" height="350"></canvas>
+        <div class="result-runner-up">
+          <p class="label">You were also close to...</p>
+          <p class="name">${runnerUp.name}</p>
+        </div>
+        <div class="result-actions">
+          <button id="btn-copy-link">Copy Link</button>
+          <button id="btn-download-card">Download Card</button>
+          <button id="btn-retake">Try Again</button>
+        </div>
+      `;
+
+      document.getElementById('btn-retake').addEventListener('click', () => {
+        window.location.hash = '';
+        showScreen('landing');
+      });
+
+      document.getElementById('btn-copy-link').addEventListener('click', () => {
+        const url = window.location.origin + window.location.pathname + '#r=' + match.id;
+        navigator.clipboard.writeText(url).then(() => {
+          const btn = document.getElementById('btn-copy-link');
+          btn.textContent = 'Copied!';
+          setTimeout(() => { btn.textContent = 'Copy Link'; }, 2000);
+        });
+      });
+
+      drawRadarChart('radar-chart', userTraits, match.traits);
     }
 
     function showScreen(id) {
