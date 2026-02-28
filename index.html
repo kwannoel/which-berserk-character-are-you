@@ -61,6 +61,70 @@
       color: #e8e0d4;
       box-shadow: 0 0 30px rgba(139,0,0,0.4);
     }
+
+    /* Quiz screen */
+    #screen-quiz {
+      justify-content: flex-start;
+      padding: 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 4px;
+      background: #1a1a1a;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: #8B0000;
+      transition: width 0.4s ease;
+    }
+    .question-number {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+    .question-text {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      font-style: italic;
+      color: #ccc;
+    }
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      width: 100%;
+    }
+    .answer-btn {
+      background: #111;
+      border: 1px solid #222;
+      color: #e8e0d4;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1.5;
+    }
+    .answer-btn:hover {
+      border-color: #8B0000;
+      background: #1a0000;
+    }
+    .answer-btn.selected {
+      border-color: #8B0000;
+      background: rgba(139,0,0,0.15);
+    }
+    .question-container { transition: opacity 0.3s ease; }
+    .question-container.fade-out { opacity: 0; }
   </style>
 </head>
 <body>
@@ -71,8 +135,10 @@
   </div>
 
   <div id="screen-quiz" class="screen">
-    <div id="progress-bar"></div>
-    <div id="question-container"></div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill"></div>
+    </div>
+    <div id="question-container" class="question-container"></div>
   </div>
 
   <div id="screen-calculating" class="screen">
@@ -404,7 +470,72 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
     }
-    document.getElementById('btn-start').addEventListener('click', () => showScreen('quiz'));
+    let currentQuestion = 0;
+    const selectedAnswers = [];
+
+    function startQuiz() {
+      currentQuestion = 0;
+      selectedAnswers.length = 0;
+      showScreen('quiz');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = QUESTIONS[currentQuestion];
+      const container = document.getElementById('question-container');
+      const progressFill = document.querySelector('.progress-bar-fill');
+
+      progressFill.style.width = ((currentQuestion / QUESTIONS.length) * 100) + '%';
+
+      container.innerHTML = `
+        <p class="question-number">Question ${currentQuestion + 1} of ${QUESTIONS.length}</p>
+        <p class="question-text">${q.text}</p>
+        <div class="answers">
+          ${q.answers.map((a, i) => `
+            <button class="answer-btn" data-index="${i}">${a.text}</button>
+          `).join('')}
+        </div>
+      `;
+
+      container.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectAnswer(parseInt(btn.dataset.index)));
+      });
+    }
+
+    function selectAnswer(index) {
+      const q = QUESTIONS[currentQuestion];
+      selectedAnswers.push(q.answers[index]);
+
+      document.querySelectorAll('.answer-btn').forEach((btn, i) => {
+        btn.classList.toggle('selected', i === index);
+        btn.disabled = true;
+      });
+
+      setTimeout(() => {
+        currentQuestion++;
+        if (currentQuestion >= QUESTIONS.length) {
+          showCalculating();
+        } else {
+          const container = document.getElementById('question-container');
+          container.classList.add('fade-out');
+          setTimeout(() => {
+            renderQuestion();
+            container.classList.remove('fade-out');
+          }, 300);
+        }
+      }, 400);
+    }
+
+    function showCalculating() {
+      showScreen('calculating');
+      setTimeout(() => {
+        const result = calculateResult(selectedAnswers);
+        renderResult(result);
+        showScreen('result');
+      }, 2000);
+    }
+
+    document.getElementById('btn-start').addEventListener('click', startQuiz);
   </script>
 </body>
 </html>
