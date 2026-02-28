@@ -60,10 +60,29 @@
       letter-spacing: 0.1em;
       transition: all 0.3s ease;
     }
-    #btn-start:hover {
+    #btn-start:hover, .btn-secondary:hover {
       background: #8B0000;
       color: #e8e0d4;
       box-shadow: 0 0 30px rgba(139,0,0,0.4);
+    }
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+    }
+    .btn-secondary {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.75rem 2rem;
+      background: transparent;
+      color: #555;
+      border: 1px solid #333;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
     }
 
     /* Quiz screen */
@@ -306,7 +325,10 @@
   <div id="screen-landing" class="screen">
     <h1>Which Berserk Character Are You?</h1>
     <p class="subtitle">A personality in the world of darkness and struggle</p>
-    <button id="btn-start">Begin the Struggle</button>
+    <div class="mode-buttons">
+      <button id="btn-start">Begin the Struggle</button>
+      <button id="btn-rivalry" class="btn-secondary">Guts or Griffith?</button>
+    </div>
   </div>
 
   <div id="screen-quiz" class="screen">
@@ -613,7 +635,12 @@
       return acc;
     }, {});
 
-    function calculateResult(answers) {
+    let quizMode = 'full'; // 'full' or 'rivalry'
+
+    const RIVALRY_CHARACTERS = CHARACTERS.filter(c => c.id === 'guts' || c.id === 'griffith');
+
+    function calculateResult(answers, pool) {
+      const candidates = pool || CHARACTERS;
       const userTraits = { ambition: 0, bonds: 0, darkness: 0, resilience: 0, intellect: 0, wrath: 0 };
       answers.forEach(answer => {
         Object.entries(answer.traits).forEach(([trait, value]) => {
@@ -630,7 +657,7 @@
 
       // Cosine similarity — compares trait profile shape, not magnitude
       const traitKeys = Object.keys(normalizedUser);
-      const similarities = CHARACTERS.map(char => {
+      const similarities = candidates.map(char => {
         let dot = 0, magU = 0, magC = 0;
         traitKeys.forEach(t => {
           dot += normalizedUser[t] * char.traits[t];
@@ -897,7 +924,8 @@
     let currentQuestion = 0;
     const selectedAnswers = [];
 
-    function startQuiz() {
+    function startQuiz(mode) {
+      quizMode = mode || 'full';
       currentQuestion = 0;
       selectedAnswers.length = 0;
       showScreen('quiz');
@@ -968,7 +996,8 @@
     function showCalculating() {
       showScreen('calculating');
       setTimeout(() => {
-        const result = calculateResult(selectedAnswers);
+        const pool = quizMode === 'rivalry' ? RIVALRY_CHARACTERS : CHARACTERS;
+        const result = calculateResult(selectedAnswers, pool);
         renderResult(result);
         showScreen('result');
       }, 2000);
@@ -1016,7 +1045,8 @@
       checkHashRoute();
     });
 
-    document.getElementById('btn-start').addEventListener('click', startQuiz);
+    document.getElementById('btn-start').addEventListener('click', () => startQuiz('full'));
+    document.getElementById('btn-rivalry').addEventListener('click', () => startQuiz('rivalry'));
   </script>
 </body>
 </html>
