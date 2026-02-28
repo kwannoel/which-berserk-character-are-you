@@ -255,6 +255,117 @@
       }
     ];
 
+    const QUESTIONS = [
+      {
+        text: "A companion falls behind on a dangerous path. The group is at risk if you stop.",
+        answers: [
+          { text: "Go back alone to get them — no one gets left behind.", traits: { bonds: 3, wrath: 1 } },
+          { text: "The group's survival comes first. Hard truth.", traits: { intellect: 2, ambition: 2 } },
+          { text: "Find a clever way to help without stopping the group.", traits: { intellect: 3, bonds: 1 } },
+          { text: "They knew the risks. Keep moving.", traits: { darkness: 2, resilience: 2 } }
+        ]
+      },
+      {
+        text: "Someone you trusted deeply has betrayed you. What drives your next move?",
+        answers: [
+          { text: "Rage. They will answer for this.", traits: { wrath: 3, darkness: 1 } },
+          { text: "Understanding. I need to know why before I act.", traits: { intellect: 3, bonds: 1 } },
+          { text: "Survival. I cut them out and move forward.", traits: { resilience: 3, darkness: 1 } },
+          { text: "It doesn't matter. I'll build something greater without them.", traits: { ambition: 3, resilience: 1 } }
+        ]
+      },
+      {
+        text: "You have the chance to gain immense power, but it will change who you are. What do you do?",
+        answers: [
+          { text: "Take it. Power is the only thing that matters in this world.", traits: { ambition: 3, darkness: 1 } },
+          { text: "Refuse. I'd rather die as myself than live as something else.", traits: { resilience: 2, bonds: 2 } },
+          { text: "Study it first. Understand the cost before deciding.", traits: { intellect: 3, resilience: 1 } },
+          { text: "Take it and use it to protect the people I love.", traits: { bonds: 2, wrath: 2 } }
+        ]
+      },
+      {
+        text: "In a group, which role do you naturally fill?",
+        answers: [
+          { text: "The leader — I set the direction and others follow.", traits: { ambition: 3, intellect: 1 } },
+          { text: "The protector — I make sure everyone gets through alive.", traits: { bonds: 3, resilience: 1 } },
+          { text: "The observer — I watch, learn, and act at the right moment.", traits: { intellect: 2, darkness: 2 } },
+          { text: "The wildcard — I don't fit neatly into roles.", traits: { wrath: 2, resilience: 2 } }
+        ]
+      },
+      {
+        text: "What do you fear most?",
+        answers: [
+          { text: "Losing the people closest to me.", traits: { bonds: 3, wrath: 1 } },
+          { text: "Being powerless when it matters.", traits: { ambition: 2, resilience: 2 } },
+          { text: "Losing myself — becoming something I don't recognize.", traits: { darkness: 2, intellect: 2 } },
+          { text: "That nothing I do will ever matter.", traits: { ambition: 2, darkness: 2 } }
+        ]
+      },
+      {
+        text: "How do you handle pain?",
+        answers: [
+          { text: "I channel it into fury. Pain becomes fuel.", traits: { wrath: 3, resilience: 1 } },
+          { text: "I endure it silently. It will pass.", traits: { resilience: 3, darkness: 1 } },
+          { text: "I analyze it. Pain teaches you what matters.", traits: { intellect: 3, darkness: 1 } },
+          { text: "I share it. Suffering alone makes it worse.", traits: { bonds: 3, resilience: 1 } }
+        ]
+      },
+      {
+        text: "A cause you believe in demands a terrible sacrifice. How do you respond?",
+        answers: [
+          { text: "I make the sacrifice without hesitation. The cause is everything.", traits: { ambition: 3, darkness: 1 } },
+          { text: "I refuse. No cause is worth losing your humanity.", traits: { bonds: 2, resilience: 2 } },
+          { text: "I find another way. There's always a path no one has seen yet.", traits: { intellect: 3, resilience: 1 } },
+          { text: "I accept it but carry the weight forever.", traits: { darkness: 2, bonds: 2 } }
+        ]
+      },
+      {
+        text: "What kind of strength do you respect most?",
+        answers: [
+          { text: "Raw, unbreakable willpower — the refusal to go down.", traits: { resilience: 3, wrath: 1 } },
+          { text: "Brilliant strategy — winning before the fight begins.", traits: { intellect: 3, ambition: 1 } },
+          { text: "Quiet loyalty — standing by someone when it costs you.", traits: { bonds: 3, darkness: 1 } },
+          { text: "Pure physical dominance — strength you can see and feel.", traits: { wrath: 2, resilience: 2 } }
+        ]
+      },
+      {
+        text: "You discover a hidden truth about the world that most people can't handle. What do you do?",
+        answers: [
+          { text: "Use the knowledge to gain an advantage.", traits: { ambition: 2, intellect: 2 } },
+          { text: "Bear it alone. Knowing is my burden, not theirs.", traits: { darkness: 2, resilience: 2 } },
+          { text: "Share it. People deserve the truth, even if it hurts.", traits: { bonds: 2, wrath: 2 } },
+          { text: "Study it further. One truth always leads to another.", traits: { intellect: 3, darkness: 1 } }
+        ]
+      },
+      {
+        text: "When the world is at its darkest, what keeps you going?",
+        answers: [
+          { text: "Spite. I refuse to let the world beat me.", traits: { wrath: 2, resilience: 2 } },
+          { text: "The people still beside me.", traits: { bonds: 3, resilience: 1 } },
+          { text: "A vision of something better — a dream worth bleeding for.", traits: { ambition: 3, darkness: 1 } },
+          { text: "Nothing keeps me going. I just don't know how to stop.", traits: { resilience: 2, darkness: 2 } }
+        ]
+      },
+      {
+        text: "How do you view people who oppose you?",
+        answers: [
+          { text: "Obstacles. I go through them or around them.", traits: { ambition: 2, wrath: 2 } },
+          { text: "They might have a point. I try to understand them first.", traits: { intellect: 2, bonds: 2 } },
+          { text: "They don't concern me unless they get in my way.", traits: { darkness: 2, resilience: 2 } },
+          { text: "Enemies. I remember every slight.", traits: { wrath: 3, darkness: 1 } }
+        ]
+      },
+      {
+        text: "If you could leave one mark on the world, what would it be?",
+        answers: [
+          { text: "A kingdom — something vast that endures beyond me.", traits: { ambition: 3, intellect: 1 } },
+          { text: "The memory of someone who never gave up.", traits: { resilience: 3, wrath: 1 } },
+          { text: "That I protected the people who mattered.", traits: { bonds: 3, darkness: 1 } },
+          { text: "Honestly? I don't care about leaving a mark. I just want peace.", traits: { darkness: 1, bonds: 2, resilience: 1 } }
+        ]
+      }
+    ];
+
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
