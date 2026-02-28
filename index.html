@@ -17,11 +17,56 @@
     h1, h2, h3, .display-font { font-family: 'Cinzel', serif; }
     .screen { display: none; min-height: 100vh; }
     .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+    /* Landing page */
+    #screen-landing {
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      background:
+        radial-gradient(ellipse at center, rgba(139,0,0,0.15) 0%, transparent 70%),
+        #0a0a0a;
+    }
+    #screen-landing h1 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: #e8e0d4;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 40px rgba(139,0,0,0.4);
+    }
+    #screen-landing .subtitle {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      color: #888;
+      margin-bottom: 3rem;
+      font-style: italic;
+    }
+    #btn-start {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 1rem 3rem;
+      background: transparent;
+      color: #8B0000;
+      border: 2px solid #8B0000;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.3s ease;
+    }
+    #btn-start:hover {
+      background: #8B0000;
+      color: #e8e0d4;
+      box-shadow: 0 0 30px rgba(139,0,0,0.4);
+    }
   </style>
 </head>
 <body>
   <div id="screen-landing" class="screen active">
     <h1>Which Berserk Character Are You?</h1>
+    <p class="subtitle">A personality in the world of darkness and struggle</p>
     <button id="btn-start">Begin the Struggle</button>
   </div>
 
