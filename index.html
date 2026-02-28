@@ -127,8 +127,22 @@
       border-color: #8B0000;
       background: rgba(139,0,0,0.15);
     }
-    .question-container { transition: opacity 0.15s ease; }
-    .question-container.fade-out { opacity: 0; }
+    .answer-btn.dimmed {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .question-container {
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      transform: translateY(0);
+    }
+    .question-container.fade-out {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    .question-container.fade-in-prep {
+      opacity: 0;
+      transform: translateY(12px);
+    }
 
     /* Results screen */
     #screen-result {
@@ -878,6 +892,7 @@
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
+      window.scrollTo(0, 0);
     }
     let currentQuestion = 0;
     const selectedAnswers = [];
@@ -915,24 +930,39 @@
       const q = QUESTIONS[currentQuestion];
       selectedAnswers.push(q.answers[index]);
 
+      // Highlight selected, dim the rest
       document.querySelectorAll('.answer-btn').forEach((btn, i) => {
-        btn.classList.toggle('selected', i === index);
         btn.disabled = true;
+        if (i === index) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.add('dimmed');
+        }
       });
 
+      // Brief pause to let the selection register visually, then transition
       setTimeout(() => {
         currentQuestion++;
         if (currentQuestion >= QUESTIONS.length) {
           showCalculating();
         } else {
           const container = document.getElementById('question-container');
+          // Slide old question up and fade out
           container.classList.add('fade-out');
           setTimeout(() => {
-            renderQuestion();
+            // Prep new question below, invisible
             container.classList.remove('fade-out');
-          }, 150);
+            container.classList.add('fade-in-prep');
+            renderQuestion();
+            // Trigger reflow, then animate in
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                container.classList.remove('fade-in-prep');
+              });
+            });
+          }, 250);
         }
-      }, 150);
+      }, 200);
     }
 
     function showCalculating() {
