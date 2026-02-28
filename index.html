@@ -84,6 +84,177 @@
   </div>
 
   <script>
+    const CHARACTERS = [
+      {
+        id: 'guts',
+        name: 'Guts',
+        traits: { ambition: 4, bonds: 6, darkness: 9, resilience: 10, intellect: 5, wrath: 10 },
+        quote: "If you're always worried about crushing the ants beneath you, you won't be able to walk.",
+        description: "You are the Black Swordsman. Forged in suffering, you carry burdens that would break lesser people. Beneath your rage lies a fierce loyalty to those who earn your trust.",
+        matchBlurb: "Like Guts, you endure what others cannot and fight hardest for the people closest to you."
+      },
+      {
+        id: 'griffith',
+        name: 'Griffith',
+        traits: { ambition: 10, bonds: 2, darkness: 8, resilience: 7, intellect: 10, wrath: 2 },
+        quote: "Among thousands of comrades and tens of thousands of enemies, only you made me forget my dream.",
+        description: "You are the White Hawk. Your vision transcends mortal limits. Charismatic and calculating, you draw others into your orbit — but your dream always comes first.",
+        matchBlurb: "Like Griffith, you see farther than everyone else and will sacrifice anything to reach your vision."
+      },
+      {
+        id: 'casca',
+        name: 'Casca',
+        traits: { ambition: 6, bonds: 9, darkness: 5, resilience: 8, intellect: 7, wrath: 5 },
+        quote: "I'm a warrior. I won't be pitied.",
+        description: "You are the commander of the Band of the Hawk. Fiercely capable and deeply loyal, you prove yourself through action. Your strength comes from both discipline and heart.",
+        matchBlurb: "Like Casca, you lead with competence and care equally about proving yourself and protecting others."
+      },
+      {
+        id: 'skull-knight',
+        name: 'Skull Knight',
+        traits: { ambition: 5, bonds: 3, darkness: 8, resilience: 10, intellect: 10, wrath: 3 },
+        quote: "You should know that all who struggle will not be rewarded. Regardless of your effort, the only destination is the grave.",
+        description: "You are the undying sentinel. Ancient and enigmatic, you move through the world with purpose few can comprehend. You bear the weight of knowledge that would drive others to despair.",
+        matchBlurb: "Like Skull Knight, you see the bigger picture and act with patience born of hard-won wisdom."
+      },
+      {
+        id: 'schierke',
+        name: 'Schierke',
+        traits: { ambition: 3, bonds: 8, darkness: 2, resilience: 6, intellect: 10, wrath: 2 },
+        quote: "Magic is the power to understand the world's flow and become one with it.",
+        description: "You are the young witch of the forest. Wise beyond your years, you see the world through eyes of wonder and knowledge. Your power grows from understanding, not force.",
+        matchBlurb: "Like Schierke, your greatest strength is your mind, and your compassion runs deeper than you let on."
+      },
+      {
+        id: 'zodd',
+        name: 'Nosferatu Zodd',
+        traits: { ambition: 5, bonds: 2, darkness: 8, resilience: 10, intellect: 4, wrath: 9 },
+        quote: "On the battlefield, there is no place for hope. What lies there is only cold despair and a sweet victory built on the pain of the defeated.",
+        description: "You are the immortal war demon. You live for the thrill of battle and the clash of worthy opponents. Respect is earned only through strength.",
+        matchBlurb: "Like Zodd, you thrive in conflict and respect only those who can stand as your equal."
+      },
+      {
+        id: 'serpico',
+        name: 'Serpico',
+        traits: { ambition: 2, bonds: 8, darkness: 4, resilience: 7, intellect: 9, wrath: 2 },
+        quote: "I merely observe. That is all I have ever done.",
+        description: "You are the wind swordsman. Calm, perceptive, and deceptively dangerous, you mask your true abilities behind a gentle smile. Your loyalty to those you love is absolute.",
+        matchBlurb: "Like Serpico, you see everything, say little, and would quietly destroy anyone who threatens those you care about."
+      },
+      {
+        id: 'farnese',
+        name: 'Farnese',
+        traits: { ambition: 5, bonds: 7, darkness: 5, resilience: 6, intellect: 6, wrath: 4 },
+        quote: "I don't want to be protected. I want to be able to protect.",
+        description: "You are the seeker of purpose. Once lost in dogma and fear, you found your true self through growth and vulnerability. Your courage isn't fearlessness — it's choosing to change.",
+        matchBlurb: "Like Farnese, your greatest strength is your willingness to transform and find meaning beyond what you were given."
+      },
+      {
+        id: 'rickert',
+        name: 'Rickert',
+        traits: { ambition: 4, bonds: 8, darkness: 2, resilience: 8, intellect: 8, wrath: 3 },
+        quote: "I can't follow you. That's my answer.",
+        description: "You are the one who stood his ground. Where others bent the knee, you held firm. You honor the past not through vengeance but through quiet, unshakeable conviction.",
+        matchBlurb: "Like Rickert, you have the rare courage to reject power when it betrays your principles."
+      },
+      {
+        id: 'puck',
+        name: 'Puck',
+        traits: { ambition: 1, bonds: 10, darkness: 1, resilience: 4, intellect: 4, wrath: 1 },
+        quote: "Even if you force back what was lost, it still won't be the way it was.",
+        description: "You are the light in the darkness. Where others see only suffering, you find humor, warmth, and reason to smile. You heal not with power but with presence.",
+        matchBlurb: "Like Puck, you bring levity and heart to every situation, reminding others that joy is never completely lost."
+      },
+      {
+        id: 'isidro',
+        name: 'Isidro',
+        traits: { ambition: 7, bonds: 6, darkness: 2, resilience: 6, intellect: 3, wrath: 5 },
+        quote: "I'm gonna be the greatest swordsman in the world!",
+        description: "You are the scrappy upstart. Brash, reckless, and full of fire, you charge headlong into the unknown. What you lack in wisdom you make up for in sheer nerve.",
+        matchBlurb: "Like Isidro, your boldness and refusal to be intimidated carry you further than talent alone ever could."
+      },
+      {
+        id: 'judeau',
+        name: 'Judeau',
+        traits: { ambition: 3, bonds: 10, darkness: 3, resilience: 7, intellect: 8, wrath: 2 },
+        quote: "You shouldn't throw your life away for someone else's dream.",
+        description: "You are the quiet heart of the group. Perceptive, selfless, and always putting others first, you see what others miss and carry unspoken feelings with grace.",
+        matchBlurb: "Like Judeau, you give more than you ask for and notice the things everyone else overlooks."
+      },
+      {
+        id: 'corkus',
+        name: 'Corkus',
+        traits: { ambition: 6, bonds: 4, darkness: 6, resilience: 4, intellect: 5, wrath: 7 },
+        quote: "Don't push your luck! We're mercenaries, not heroes!",
+        description: "You are the bitter realist. You see the world for what it is and have no patience for idealism. Cynical and sharp-tongued, you're not always wrong — just never hopeful.",
+        matchBlurb: "Like Corkus, you cut through delusion with brutal honesty, even when no one wants to hear it."
+      },
+      {
+        id: 'void',
+        name: 'Void',
+        traits: { ambition: 10, bonds: 1, darkness: 10, resilience: 8, intellect: 10, wrath: 1 },
+        quote: "In this world, is the destiny of mankind controlled by some transcendental entity or law?",
+        description: "You are the architect of fate. Detached, cerebral, and operating on a plane beyond mortal concerns, you see causality itself as your domain. Emotion is irrelevant; the pattern is everything.",
+        matchBlurb: "Like Void, you think in systems and abstractions, viewing the world from a distance that others find unsettling."
+      },
+      {
+        id: 'slan',
+        name: 'Slan',
+        traits: { ambition: 7, bonds: 3, darkness: 9, resilience: 6, intellect: 7, wrath: 3 },
+        quote: "Pain and pleasure are inseparable... that is what it means to be human.",
+        description: "You are the Whore Princess of the Uterine Sea. You find beauty in extremes — pain, pleasure, passion, despair. Life is sensation, and you refuse to experience it halfway.",
+        matchBlurb: "Like Slan, you embrace the full spectrum of experience while others flinch from intensity."
+      },
+      {
+        id: 'locus',
+        name: 'Locus',
+        traits: { ambition: 7, bonds: 5, darkness: 6, resilience: 8, intellect: 8, wrath: 3 },
+        quote: "A knight must have a lord to serve. A purpose to devote himself to.",
+        description: "You are the Moonlight Knight. Even in darkness, you cling to an ideal of honor and purpose. You serve not out of weakness but from a deep need for meaning.",
+        matchBlurb: "Like Locus, you seek a cause worthy of your devotion and carry yourself with quiet dignity."
+      },
+      {
+        id: 'grunbeld',
+        name: 'Grunbeld',
+        traits: { ambition: 6, bonds: 4, darkness: 6, resilience: 10, intellect: 5, wrath: 6 },
+        quote: "Show me the strength of a true warrior.",
+        description: "You are the Great Flame Dragon. You respect strength above all else and hold yourself to a warrior's code. Honest combat is sacred to you.",
+        matchBlurb: "Like Grunbeld, you believe in earning everything through strength and despise those who take shortcuts."
+      },
+      {
+        id: 'irvine',
+        name: 'Irvine',
+        traits: { ambition: 3, bonds: 3, darkness: 5, resilience: 7, intellect: 7, wrath: 1 },
+        quote: "The moon tonight is beautiful, isn't it?",
+        description: "You are the solitary archer. Quiet, observant, and comfortable in solitude, you see the world with an artist's eye. You act with precision, never wasting a single motion.",
+        matchBlurb: "Like Irvine, you find peace in stillness and beauty in places others never think to look."
+      },
+      {
+        id: 'ganishka',
+        name: 'Ganishka',
+        traits: { ambition: 10, bonds: 1, darkness: 9, resilience: 9, intellect: 7, wrath: 8 },
+        quote: "I will not kneel before any being, human or demon!",
+        description: "You are the rebel emperor. Even among demons, you refused to bow. Your defiance is absolute — you'd rather be destroyed than submit to another's will.",
+        matchBlurb: "Like Ganishka, your need for independence burns so fiercely that you'd challenge fate itself."
+      },
+      {
+        id: 'egg',
+        name: 'Egg of the Perfect World',
+        traits: { ambition: 2, bonds: 2, darkness: 8, resilience: 2, intellect: 6, wrath: 1 },
+        quote: "I wanted a world that was beautiful... for everyone.",
+        description: "You are the forgotten apostle. Invisible to the world, you carried a wish so pure it became a sacrifice. Your suffering was silent, your hope was for everyone but yourself.",
+        matchBlurb: "Like the Egg, your deepest desire is not for yourself but for a world that never saw you."
+      },
+      {
+        id: 'sonia',
+        name: 'Sonia',
+        traits: { ambition: 5, bonds: 9, darkness: 3, resilience: 5, intellect: 6, wrath: 1 },
+        quote: "I can see it... a world reborn in light.",
+        description: "You are the blind devotee. Your faith is total, your conviction unshakeable. Where others question and doubt, you see with absolute clarity — or absolute delusion.",
+        matchBlurb: "Like Sonia, you give yourself completely to what you believe in, with a certainty that both inspires and unnerves."
+      }
+    ];
+
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-' + id).classList.add('active');
