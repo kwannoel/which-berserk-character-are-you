@@ -247,7 +247,7 @@
   </style>
 </head>
 <body>
-  <div id="screen-landing" class="screen active">
+  <div id="screen-landing" class="screen">
     <h1>Which Berserk Character Are You?</h1>
     <p class="subtitle">A personality in the world of darkness and struggle</p>
     <button id="btn-start">Begin the Struggle</button>
@@ -1126,6 +1126,7 @@
       }
 
       drawRadarChart('radar-chart', userTraits, match.traits);
+      window.location.hash = 'r=' + match.id;
     }
 
     function showScreen(id) {
@@ -1196,6 +1197,32 @@
         showScreen('result');
       }, 2000);
     }
+
+    function checkHashRoute() {
+      const hash = window.location.hash;
+      const match = hash.match(/^#r=(.+)$/);
+      if (match) {
+        const characterId = match[1];
+        const character = CHARACTERS.find(c => c.id === characterId);
+        if (character) {
+          const runnerUpIndex = CHARACTERS.indexOf(character) === 0 ? 1 : 0;
+          renderResult({
+            match: character,
+            runnerUp: CHARACTERS[runnerUpIndex],
+            userTraits: character.traits
+          });
+          showScreen('result');
+          return true;
+        }
+      }
+      return false;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!checkHashRoute()) {
+        showScreen('landing');
+      }
+    });
 
     document.getElementById('btn-start').addEventListener('click', startQuiz);
   </script>
