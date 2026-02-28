@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="description" content="A personality quiz to discover which Berserk character you are. 21 characters, trait-based matching.">
+  <meta property="og:title" content="Which Berserk Character Are You?">
+  <meta property="og:description" content="Discover your Berserk alter ego through a personality quiz.">
   <title>Which Berserk Character Are You?</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
@@ -243,6 +247,36 @@
     @keyframes pulse {
       0%, 100% { opacity: 0.4; }
       50% { opacity: 1; color: #8B0000; }
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      #screen-quiz, #screen-result {
+        padding: 1.25rem;
+      }
+      .answer-btn {
+        padding: 0.85rem 1rem;
+        font-size: 0.95rem;
+      }
+      .result-portrait svg {
+        width: 140px;
+        height: 175px;
+      }
+      #radar-chart {
+        width: 280px;
+        height: 280px;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    ::selection {
+      background: rgba(139,0,0,0.4);
+      color: #e8e0d4;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #8B0000;
+      outline-offset: 2px;
     }
   </style>
 </head>
