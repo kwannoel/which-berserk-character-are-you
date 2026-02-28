@@ -1080,6 +1080,111 @@
       drawPolygon(userTraits, 'rgba(232,224,212,0.1)', 'rgba(232,224,212,0.7)');
     }
 
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split(' ');
+      let line = '';
+      let currentY = y;
+      for (const word of words) {
+        const testLine = line + word + ' ';
+        if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+          ctx.fillText(line.trim(), x, currentY);
+          line = word + ' ';
+          currentY += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line.trim(), x, currentY);
+    }
+
+    function drawRadarChartOnCanvas(ctx, cx, cy, radius, userTraits, charTraits) {
+      const traits = ['ambition', 'bonds', 'darkness', 'resilience', 'intellect', 'wrath'];
+      const numAxes = traits.length;
+      const angleStep = (2 * Math.PI) / numAxes;
+      const startAngle = -Math.PI / 2;
+
+      for (let ring = 2; ring <= 10; ring += 2) {
+        ctx.beginPath();
+        for (let i = 0; i <= numAxes; i++) {
+          const angle = startAngle + i * angleStep;
+          const r = (ring / 10) * radius;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < numAxes; i++) {
+        const angle = startAngle + i * angleStep;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
+        ctx.strokeStyle = '#333';
+        ctx.stroke();
+      }
+
+      function drawPoly(traitValues, fill, stroke) {
+        ctx.beginPath();
+        for (let i = 0; i <= numAxes; i++) {
+          const idx = i % numAxes;
+          const angle = startAngle + idx * angleStep;
+          const val = traitValues[traits[idx]] / 10;
+          const x = cx + val * radius * Math.cos(angle);
+          const y = cy + val * radius * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      drawPoly(charTraits, 'rgba(139,0,0,0.15)', 'rgba(139,0,0,0.4)');
+      drawPoly(userTraits, 'rgba(232,224,212,0.1)', 'rgba(232,224,212,0.7)');
+    }
+
+    function generateShareCard(result) {
+      const { match, userTraits } = result;
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 630;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, 1200, 630);
+
+      const gradient = ctx.createRadialGradient(600, 315, 100, 600, 315, 600);
+      gradient.addColorStop(0, 'rgba(139,0,0,0.1)');
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1200, 630);
+
+      ctx.fillStyle = '#555';
+      ctx.font = '18px Georgia';
+      ctx.textAlign = 'center';
+      ctx.fillText('YOU ARE', 600, 120);
+
+      ctx.fillStyle = '#8B0000';
+      ctx.font = 'bold 64px Cinzel, serif';
+      ctx.fillText(match.name.toUpperCase(), 600, 190);
+
+      ctx.fillStyle = '#888';
+      ctx.font = 'italic 20px Georgia';
+      wrapText(ctx, '"' + match.quote + '"', 600, 250, 900, 28);
+
+      drawRadarChartOnCanvas(ctx, 600, 430, 120, userTraits, match.traits);
+
+      ctx.fillStyle = '#333';
+      ctx.font = '14px Georgia';
+      ctx.fillText('Which Berserk Character Are You?', 600, 610);
+
+      return canvas;
+    }
+
     let currentResult = null;
 
     function renderResult(result) {
@@ -1118,6 +1223,14 @@
           btn.textContent = 'Copied!';
           setTimeout(() => { btn.textContent = 'Copy Link'; }, 2000);
         });
+      });
+
+      document.getElementById('btn-download-card').addEventListener('click', () => {
+        const card = generateShareCard(currentResult);
+        const link = document.createElement('a');
+        link.download = `berserk-quiz-${currentResult.match.id}.png`;
+        link.href = card.toDataURL('image/png');
+        link.click();
       });
 
       const portraitEl = document.getElementById('result-portrait');
