@@ -260,27 +260,13 @@
       background: #8B0000;
       color: #e8e0d4;
     }
-    .distribution-link {
-      margin-top: 1.5rem;
-      font-size: 0.8rem;
-      color: #555;
-      cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      transition: color 0.2s;
-    }
-    .distribution-link:hover {
-      color: #8B0000;
-    }
     .distribution-panel {
       margin-top: 1.5rem;
-      padding: 1.5rem;
+      padding: 1.5rem 1rem;
       background: #111;
       border: 1px solid #222;
-      text-align: left;
       font-family: monospace;
-      font-size: 0.8rem;
-      line-height: 1.6;
+      font-size: 0.75rem;
       color: #888;
     }
     .distribution-panel .dist-title {
@@ -292,42 +278,72 @@
       margin-bottom: 1rem;
       text-align: center;
     }
-    .distribution-panel .dist-row {
+    .dist-graph {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 2px;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 180px;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #222;
     }
-    .distribution-panel .dist-name {
-      width: 140px;
-      text-align: right;
-      flex-shrink: 0;
+    .dist-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .dist-pct {
+      font-size: 0.6rem;
+      color: #666;
+      margin-bottom: 3px;
+    }
+    .dist-pct.dist-you-pct {
+      color: #8B0000;
+      font-weight: bold;
+    }
+    .dist-bar-outer {
+      width: 100%;
+      background: #333;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .dist-bar-fill {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      transition: height 0.4s ease;
+    }
+    .dist-bar-fill.dist-you-fill {
+      background: rgba(139, 0, 0, 0.6);
+    }
+    .dist-labels {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+    .dist-label {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      font-size: 0.55rem;
+      color: #555;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      height: 90px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .distribution-panel .dist-name.dist-you {
+    .dist-label.dist-you-label {
       color: #8B0000;
       font-weight: bold;
-    }
-    .distribution-panel .dist-bar-bg {
-      flex: 1;
-      height: 14px;
-      background: #1a1a1a;
-      position: relative;
-    }
-    .distribution-panel .dist-bar {
-      height: 100%;
-      background: #333;
-      transition: width 0.3s ease;
-    }
-    .distribution-panel .dist-bar.dist-you-bar {
-      background: #8B0000;
-    }
-    .distribution-panel .dist-pct {
-      width: 45px;
-      text-align: right;
-      flex-shrink: 0;
     }
     .result-portrait {
       margin: 1.5rem 0;
@@ -952,7 +968,6 @@
           <button id="btn-download-card">Download Card</button>
           <button id="btn-retake">Try Again</button>
         </div>
-        <p class="distribution-link" id="btn-distribution">How rare is your result?</p>
         <div id="distribution-panel"></div>
       `;
 
@@ -978,42 +993,46 @@
         link.click();
       });
 
-      document.getElementById('btn-distribution').addEventListener('click', () => {
-        const panel = document.getElementById('distribution-panel');
-        if (panel.innerHTML) { panel.innerHTML = ''; return; }
+      // Render distribution bar graph
+      const distPanel = document.getElementById('distribution-panel');
+      const pool = quizMode === 'rivalry' ? RIVALRY_CHARACTERS : CHARACTERS;
+      const ROUNDS = 10000;
+      const distCounts = {};
+      pool.forEach(c => { distCounts[c.name] = 0; });
 
-        const pool = quizMode === 'rivalry' ? RIVALRY_CHARACTERS : CHARACTERS;
-        const ROUNDS = 10000;
-        const counts = {};
-        pool.forEach(c => { counts[c.name] = 0; });
+      for (let i = 0; i < ROUNDS; i++) {
+        const indices = Array.from({ length: 12 }, () => Math.floor(Math.random() * 4));
+        const fuzzAnswers = indices.map((idx, qi) => QUESTIONS[qi].answers[idx]);
+        const r = calculateResult(fuzzAnswers, pool);
+        distCounts[r.match.name]++;
+      }
 
-        for (let i = 0; i < ROUNDS; i++) {
-          const indices = Array.from({ length: 12 }, () => Math.floor(Math.random() * 4));
-          const answers = indices.map((idx, qi) => QUESTIONS[qi].answers[idx]);
-          const r = calculateResult(answers, pool);
-          counts[r.match.name]++;
-        }
+      const distSorted = Object.entries(distCounts).sort((a, b) => b[1] - a[1]);
+      const distMax = distSorted[0][1];
 
-        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        const maxCount = sorted[0][1];
-
-        const rows = sorted.map(([name, count]) => {
-          const pct = ((count / ROUNDS) * 100).toFixed(1);
-          const barW = ((count / maxCount) * 100).toFixed(1);
-          const isYou = name === match.name;
-          return `<div class="dist-row">
-            <span class="dist-name ${isYou ? 'dist-you' : ''}">${name}</span>
-            <span class="dist-bar-bg"><span class="dist-bar ${isYou ? 'dist-you-bar' : ''}" style="width:${barW}%"></span></span>
-            <span class="dist-pct">${pct}%</span>
-          </div>`;
-        }).join('');
-
-        const modeLabel = quizMode === 'rivalry' ? 'Guts vs Griffith — ' : '';
-        panel.innerHTML = `<div class="distribution-panel">
-          <p class="dist-title">${modeLabel}${ROUNDS.toLocaleString()} random playthroughs</p>
-          ${rows}
+      const cols = distSorted.map(([name, count]) => {
+        const pct = ((count / ROUNDS) * 100).toFixed(1);
+        const barH = ((count / distMax) * 100).toFixed(1);
+        const isYou = name === match.name;
+        return `<div class="dist-col">
+          <span class="dist-pct ${isYou ? 'dist-you-pct' : ''}">${pct}%</span>
+          <div class="dist-bar-outer" style="height:100%">
+            <div class="dist-bar-fill ${isYou ? 'dist-you-fill' : ''}" style="height:${barH}%"></div>
+          </div>
         </div>`;
-      });
+      }).join('');
+
+      const labels = distSorted.map(([name]) => {
+        const isYou = name === match.name;
+        return `<div class="dist-label ${isYou ? 'dist-you-label' : ''}">${name}</div>`;
+      }).join('');
+
+      const modeLabel = quizMode === 'rivalry' ? 'Guts vs Griffith — ' : '';
+      distPanel.innerHTML = `<div class="distribution-panel">
+        <p class="dist-title">${modeLabel}${ROUNDS.toLocaleString()} random playthroughs</p>
+        <div class="dist-graph">${cols}</div>
+        <div class="dist-labels">${labels}</div>
+      </div>`;
 
       const portraitEl = document.getElementById('result-portrait');
       if (CHARACTER_IMAGES[match.id]) {
