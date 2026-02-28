@@ -566,6 +566,82 @@
       };
     }
 
+    function drawRadarChart(canvasId, userTraits, characterTraits) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = Math.min(cx, cy) - 50;
+      const traits = ['ambition', 'bonds', 'darkness', 'resilience', 'intellect', 'wrath'];
+      const labels = ['Ambition', 'Bonds', 'Darkness', 'Resilience', 'Intellect', 'Wrath'];
+      const numAxes = traits.length;
+      const angleStep = (2 * Math.PI) / numAxes;
+      const startAngle = -Math.PI / 2;
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (let ring = 2; ring <= 10; ring += 2) {
+        ctx.beginPath();
+        for (let i = 0; i <= numAxes; i++) {
+          const angle = startAngle + i * angleStep;
+          const r = (ring / 10) * radius;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < numAxes; i++) {
+        const angle = startAngle + i * angleStep;
+        const x = cx + radius * Math.cos(angle);
+        const y = cy + radius * Math.sin(angle);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        const labelR = radius + 25;
+        const lx = cx + labelR * Math.cos(angle);
+        const ly = cy + labelR * Math.sin(angle);
+        ctx.fillStyle = '#666';
+        ctx.font = '11px Georgia';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labels[i], lx, ly);
+      }
+
+      function drawPolygon(traitValues, fillColor, strokeColor) {
+        ctx.beginPath();
+        for (let i = 0; i <= numAxes; i++) {
+          const idx = i % numAxes;
+          const angle = startAngle + idx * angleStep;
+          const val = traitValues[traits[idx]] / 10;
+          const r = val * radius;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      drawPolygon(characterTraits, 'rgba(139,0,0,0.15)', 'rgba(139,0,0,0.4)');
+      drawPolygon(userTraits, 'rgba(232,224,212,0.1)', 'rgba(232,224,212,0.7)');
+    }
+
     let currentResult = null;
 
     function renderResult(result) {
