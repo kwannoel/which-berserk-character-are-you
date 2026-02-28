@@ -198,6 +198,12 @@
       font-size: 1.2rem;
       color: #8B0000;
     }
+    .runner-up-quote {
+      font-style: italic;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
     .result-actions {
       display: flex;
       gap: 1rem;
@@ -1237,6 +1243,7 @@
         <div class="result-runner-up">
           <p class="label">You were also close to...</p>
           <p class="name">${runnerUp.name}</p>
+          <p class="runner-up-quote">"${runnerUp.quote}"</p>
         </div>
         <div class="result-actions">
           <button id="btn-copy-link">Copy Link</button>
@@ -1345,6 +1352,19 @@
       }, 2000);
     }
 
+    function findNearestNeighbor(character) {
+      return CHARACTERS
+        .filter(c => c.id !== character.id)
+        .map(c => ({
+          character: c,
+          distance: Math.sqrt(
+            Object.keys(character.traits).reduce((sum, t) =>
+              sum + Math.pow(character.traits[t] - c.traits[t], 2), 0)
+          )
+        }))
+        .sort((a, b) => a.distance - b.distance)[0].character;
+    }
+
     function checkHashRoute() {
       const hash = window.location.hash;
       const match = hash.match(/^#r=(.+)$/);
@@ -1352,10 +1372,9 @@
         const characterId = match[1];
         const character = CHARACTERS.find(c => c.id === characterId);
         if (character) {
-          const runnerUpIndex = CHARACTERS.indexOf(character) === 0 ? 1 : 0;
           renderResult({
             match: character,
-            runnerUp: CHARACTERS[runnerUpIndex],
+            runnerUp: findNearestNeighbor(character),
             userTraits: character.traits
           });
           showScreen('result');
@@ -1369,6 +1388,10 @@
       if (!checkHashRoute()) {
         showScreen('landing');
       }
+    });
+
+    window.addEventListener('hashchange', () => {
+      checkHashRoute();
     });
 
     document.getElementById('btn-start').addEventListener('click', startQuiz);
