@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Berserk Character Are You?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Georgia', serif;
+      background: #0a0a0a;
+      color: #e8e0d4;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, .display-font { font-family: 'Cinzel', serif; }
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+  </style>
+</head>
+<body>
+  <div id="screen-landing" class="screen active">
+    <h1>Which Berserk Character Are You?</h1>
+    <button id="btn-start">Begin the Struggle</button>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div id="progress-bar"></div>
+    <div id="question-container"></div>
+  </div>
+
+  <div id="screen-calculating" class="screen">
+    <p>The Eclipse reveals your fate...</p>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <div id="result-container"></div>
+  </div>
+
+  <script>
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + id).classList.add('active');
+    }
+    document.getElementById('btn-start').addEventListener('click', () => showScreen('quiz'));
+  </script>
+</body>
+</html>
