@@ -322,6 +322,58 @@
       color: #8B0000;
       font-weight: bold;
     }
+    .dist-rivalry {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 1rem 0;
+    }
+    .dist-rival {
+      flex: 1;
+      max-width: 180px;
+      text-align: center;
+    }
+    .dist-rival-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    .dist-rival-name.dist-you-name {
+      color: #8B0000;
+      font-weight: bold;
+    }
+    .dist-rival-bar {
+      width: 100%;
+      background: #333;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+    .dist-rival-fill {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.18);
+      transition: height 0.4s ease;
+    }
+    .dist-rival-fill.dist-you-fill {
+      background: rgba(139, 0, 0, 0.6);
+    }
+    .dist-rival-pct {
+      font-size: 1.2rem;
+      color: #555;
+      font-family: 'Cinzel', serif;
+    }
+    .dist-rival-pct.dist-you-pct {
+      color: #8B0000;
+      font-weight: bold;
+    }
+    .dist-vs {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      color: #333;
+      align-self: center;
+      padding-bottom: 2rem;
+    }
     .result-portrait {
       margin: 1.5rem 0;
     }
@@ -970,7 +1022,7 @@
         link.click();
       });
 
-      // Render distribution bar graph
+      // Render distribution
       const distPanel = document.getElementById('distribution-panel');
       const pool = quizMode === 'rivalry' ? RIVALRY_CHARACTERS : CHARACTERS;
       const ROUNDS = 10000;
@@ -984,27 +1036,57 @@
         distCounts[r.match.name]++;
       }
 
-      const distSorted = Object.entries(distCounts).sort((a, b) => b[1] - a[1]);
-      const distMax = distSorted[0][1];
+      if (quizMode === 'rivalry') {
+        const gutsPct = ((distCounts['Guts'] / ROUNDS) * 100).toFixed(1);
+        const griffithPct = ((distCounts['Griffith'] / ROUNDS) * 100).toFixed(1);
+        const maxH = 140;
+        const gutsH = Math.round((distCounts['Guts'] / ROUNDS) * maxH * 2);
+        const griffithH = Math.round((distCounts['Griffith'] / ROUNDS) * maxH * 2);
+        const gutsIsYou = match.name === 'Guts';
+        const griffithIsYou = match.name === 'Griffith';
 
-      const rows = distSorted.map(([name, count]) => {
-        const pct = ((count / ROUNDS) * 100).toFixed(1);
-        const barW = ((count / distMax) * 100).toFixed(1);
-        const isYou = name === match.name;
-        return `<div class="dist-row">
-          <span class="dist-name ${isYou ? 'dist-you-name' : ''}">${name}</span>
-          <div class="dist-bar-outer">
-            <div class="dist-bar-fill ${isYou ? 'dist-you-fill' : ''}" style="width:${barW}%"></div>
+        distPanel.innerHTML = `<div class="distribution-panel">
+          <p class="dist-title">${ROUNDS.toLocaleString()} random playthroughs</p>
+          <div class="dist-rivalry">
+            <div class="dist-rival">
+              <div class="dist-rival-pct ${gutsIsYou ? 'dist-you-pct' : ''}">${gutsPct}%</div>
+              <div class="dist-rival-bar" style="height:${maxH}px">
+                <div class="dist-rival-fill ${gutsIsYou ? 'dist-you-fill' : ''}" style="height:${gutsH}px"></div>
+              </div>
+              <div class="dist-rival-name ${gutsIsYou ? 'dist-you-name' : ''}">Guts</div>
+            </div>
+            <div class="dist-vs">vs</div>
+            <div class="dist-rival">
+              <div class="dist-rival-pct ${griffithIsYou ? 'dist-you-pct' : ''}">${griffithPct}%</div>
+              <div class="dist-rival-bar" style="height:${maxH}px">
+                <div class="dist-rival-fill ${griffithIsYou ? 'dist-you-fill' : ''}" style="height:${griffithH}px"></div>
+              </div>
+              <div class="dist-rival-name ${griffithIsYou ? 'dist-you-name' : ''}">Griffith</div>
+            </div>
           </div>
-          <span class="dist-pct ${isYou ? 'dist-you-pct' : ''}">${pct}%</span>
         </div>`;
-      }).join('');
+      } else {
+        const distSorted = Object.entries(distCounts).sort((a, b) => b[1] - a[1]);
+        const distMax = distSorted[0][1];
 
-      const modeLabel = quizMode === 'rivalry' ? 'Guts vs Griffith — ' : '';
-      distPanel.innerHTML = `<div class="distribution-panel">
-        <p class="dist-title">${modeLabel}${ROUNDS.toLocaleString()} random playthroughs</p>
-        ${rows}
-      </div>`;
+        const rows = distSorted.map(([name, count]) => {
+          const pct = ((count / ROUNDS) * 100).toFixed(1);
+          const barW = ((count / distMax) * 100).toFixed(1);
+          const isYou = name === match.name;
+          return `<div class="dist-row">
+            <span class="dist-name ${isYou ? 'dist-you-name' : ''}">${name}</span>
+            <div class="dist-bar-outer">
+              <div class="dist-bar-fill ${isYou ? 'dist-you-fill' : ''}" style="width:${barW}%"></div>
+            </div>
+            <span class="dist-pct ${isYou ? 'dist-you-pct' : ''}">${pct}%</span>
+          </div>`;
+        }).join('');
+
+        distPanel.innerHTML = `<div class="distribution-panel">
+          <p class="dist-title">${ROUNDS.toLocaleString()} random playthroughs</p>
+          ${rows}
+        </div>`;
+      }
 
       const portraitEl = document.getElementById('result-portrait');
       if (CHARACTER_IMAGES[match.id]) {
