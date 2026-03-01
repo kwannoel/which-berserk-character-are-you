@@ -278,70 +278,47 @@
       margin-bottom: 1rem;
       text-align: center;
     }
-    .dist-graph {
+    .dist-row {
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 3px;
-      height: 180px;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid #222;
-    }
-    .dist-col {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      flex: 1;
-      min-width: 0;
-      height: 100%;
-      justify-content: flex-end;
-    }
-    .dist-pct {
-      font-size: 0.6rem;
-      color: #666;
+      gap: 0.5rem;
       margin-bottom: 3px;
     }
-    .dist-pct.dist-you-pct {
-      color: #8B0000;
-      font-weight: bold;
-    }
-    .dist-bar-outer {
-      width: 100%;
-      background: #333;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-    .dist-bar-fill {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.15);
-      transition: height 0.4s ease;
-    }
-    .dist-bar-fill.dist-you-fill {
-      background: rgba(139, 0, 0, 0.6);
-    }
-    .dist-labels {
-      display: flex;
-      gap: 3px;
-      justify-content: center;
-      margin-top: 0.5rem;
-    }
-    .dist-label {
-      flex: 1;
-      min-width: 0;
-      text-align: center;
-      font-size: 0.55rem;
+    .dist-name {
+      width: 130px;
+      text-align: right;
+      flex-shrink: 0;
+      font-size: 0.7rem;
       color: #555;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      height: 90px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .dist-label.dist-you-label {
+    .dist-name.dist-you-name {
+      color: #8B0000;
+      font-weight: bold;
+    }
+    .dist-bar-outer {
+      flex: 1;
+      height: 16px;
+      background: #333;
+    }
+    .dist-bar-fill {
+      height: 100%;
+      background: rgba(255, 255, 255, 0.18);
+      transition: width 0.4s ease;
+    }
+    .dist-bar-fill.dist-you-fill {
+      background: rgba(139, 0, 0, 0.6);
+    }
+    .dist-pct {
+      width: 40px;
+      text-align: right;
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      color: #555;
+    }
+    .dist-pct.dist-you-pct {
       color: #8B0000;
       font-weight: bold;
     }
@@ -1010,28 +987,23 @@
       const distSorted = Object.entries(distCounts).sort((a, b) => b[1] - a[1]);
       const distMax = distSorted[0][1];
 
-      const cols = distSorted.map(([name, count]) => {
+      const rows = distSorted.map(([name, count]) => {
         const pct = ((count / ROUNDS) * 100).toFixed(1);
-        const barH = ((count / distMax) * 100).toFixed(1);
+        const barW = ((count / distMax) * 100).toFixed(1);
         const isYou = name === match.name;
-        return `<div class="dist-col">
-          <span class="dist-pct ${isYou ? 'dist-you-pct' : ''}">${pct}%</span>
-          <div class="dist-bar-outer" style="height:100%">
-            <div class="dist-bar-fill ${isYou ? 'dist-you-fill' : ''}" style="height:${barH}%"></div>
+        return `<div class="dist-row">
+          <span class="dist-name ${isYou ? 'dist-you-name' : ''}">${name}</span>
+          <div class="dist-bar-outer">
+            <div class="dist-bar-fill ${isYou ? 'dist-you-fill' : ''}" style="width:${barW}%"></div>
           </div>
+          <span class="dist-pct ${isYou ? 'dist-you-pct' : ''}">${pct}%</span>
         </div>`;
-      }).join('');
-
-      const labels = distSorted.map(([name]) => {
-        const isYou = name === match.name;
-        return `<div class="dist-label ${isYou ? 'dist-you-label' : ''}">${name}</div>`;
       }).join('');
 
       const modeLabel = quizMode === 'rivalry' ? 'Guts vs Griffith — ' : '';
       distPanel.innerHTML = `<div class="distribution-panel">
         <p class="dist-title">${modeLabel}${ROUNDS.toLocaleString()} random playthroughs</p>
-        <div class="dist-graph">${cols}</div>
-        <div class="dist-labels">${labels}</div>
+        ${rows}
       </div>`;
 
       const portraitEl = document.getElementById('result-portrait');
